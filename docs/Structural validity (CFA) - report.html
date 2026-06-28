@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Testing structural validity (CFA)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Structural validity (CFA) - report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Structural validity (CFA) - report_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Structural validity (CFA) - report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Structural validity (CFA) - report_files/libs/quarto-html/popper.min.js"></script>
+<script src="Structural validity (CFA) - report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Structural validity (CFA) - report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Structural validity (CFA) - report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Structural validity (CFA) - report_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Structural validity (CFA) - report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Structural validity (CFA) - report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Structural validity (CFA) - report_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Testing structural validity (CFA)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="loading-packages" class="level2">
+<h2 class="anchored" data-anchor-id="loading-packages">Loading packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(semTools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="loading-clean-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="loading-clean-dataset">Loading clean dataset</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data_clean <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/clean/caffeine_sensitivity_english_clean.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="building-single-factor-cfa-model" class="level1">
+<h1>Building single factor CFA model</h1>
+<section id="based-on-efa-and-esem-analysis-we-predict-that-all-the-12-items-load-on-one-single-latent-variable." class="level3">
+<h3 class="anchored" data-anchor-id="based-on-efa-and-esem-analysis-we-predict-that-all-the-12-items-load-on-one-single-latent-variable.">Based on EFA and ESEM-analysis we predict that all the 12 items load on one single latent variable.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="st">'factor1 =~ </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_1 + </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_2 + </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_3 +</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_4 + </span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_5 + </span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_6 + </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_7 +</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_8 + </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_9 + </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_10 +</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_11 + </span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_12'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="fitting-the-model-with-wlsmv-estimator-as-the-variables-in-the-dataset-are-ordinal" class="level1">
+<h1>Fitting the model with WLSMV estimator as the variables in the dataset are ordinal</h1>
+<section id="as-the-12-items-are-measured-on-a-5-point-likert-scale-the-assumption-of-multivariate-normality-required-for-standard-maximum-likelihood-ml-is-violated.-therefore-we-use-wlsmv-weighted-least-squares-means-and-variance-adjusted." class="level3">
+<h3 class="anchored" data-anchor-id="as-the-12-items-are-measured-on-a-5-point-likert-scale-the-assumption-of-multivariate-normality-required-for-standard-maximum-likelihood-ml-is-violated.-therefore-we-use-wlsmv-weighted-least-squares-means-and-variance-adjusted.">As the 12 items are measured on a 5-point Likert-scale, the assumption of multivariate normality required for standard Maximum Likelihood (ML) is violated. Therefore we use WLSMV (Weighted Least Squares Means and Variance-adjusted).</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">cfa</span>(model,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span> data_clean,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimator=</span> <span class="st">"WLSMV"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ordered=</span> <span class="fu">c</span>(<span class="st">"caff_intox_revised_1"</span>, </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_2"</span>, </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_3"</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_4"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_5"</span>, </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_6"</span>, </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_7"</span>, </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_8"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_9"</span>, </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_10"</span>, </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_11"</span>, </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_12"</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="analyzing-model-fit-indices---using-the-scaled-values-of-cfi-tli-rmsea-and-srmr" class="level1">
+<h1>Analyzing model fit indices - using the scaled values of CFI, TLI, RMSEA and SRMR</h1>
+<section id="as-we-used-wlsmv-estimator-we-focus-on-the-scaled-values-of-cfi-tli-rmsea-and-srmr." class="level3">
+<h3 class="anchored" data-anchor-id="as-we-used-wlsmv-estimator-we-focus-on-the-scaled-values-of-cfi-tli-rmsea-and-srmr.">As we used WLSMV estimator, we focus on the scaled values of CFI, TLI, RMSEA and SRMR.</h3>
+<section id="the-widely-accepted-cut-off-points-for-these-model-fit-indices-are-the-following" class="level4">
+<h4 class="anchored" data-anchor-id="the-widely-accepted-cut-off-points-for-these-model-fit-indices-are-the-following">The widely accepted cut-off points for these model fit indices are the following:</h4>
+<ul>
+<li><p>CFI (Comparative Fit index): 0.95 &lt;= excellent fit, 0.90 &lt;= acceptable fit</p></li>
+<li><p>TLI (Tucker-Lewis Index): 0.95 &lt;= excellent fit, 0.90 &lt;= acceptable fit</p></li>
+<li><p>RMSEA (Root Mean Square Error of Approximation) : 0.06 &gt;= excellent fit, 0.08 &gt;= good fit</p></li>
+<li><p>SRMR (Standardized Root Mean Square Residual): 0.05 &gt;= excellent fit, 0.08 &gt;= good fit</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit, <span class="fu">c</span>(<span class="st">"cfi.scaled"</span>, <span class="st">"tli.scaled"</span>, <span class="st">"rmsea.scaled"</span>, <span class="st">"srmr"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  cfi.scaled   tli.scaled rmsea.scaled         srmr 
+       0.958        0.948        0.099        0.061 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results:</h2>
+<ul>
+<li><p>CFI and TLI indicates a good model fit as their values are around 0.95</p></li>
+<li><p>RMSEA is above the recommended threshold, therefore indicating a poor model fit.</p></li>
+<li><p>SRMR is below the 0.08 threshold, indicating a good model fit.</p></li>
+</ul>
+</section>
+</section>
+<section id="factor-loadings-in-the-single-factor-cfa-model" class="level1">
+<h1>Factor loadings in the single factor CFA model</h1>
+<section id="standardized-factor-loadings-above-0.40-are-considered-acceptable-with-values-between-0.40-and-0.70-indicating-moderate-and-values-above-0.70-indicating-strong-construct-validity." class="level3">
+<h3 class="anchored" data-anchor-id="standardized-factor-loadings-above-0.40-are-considered-acceptable-with-values-between-0.40-and-0.70-indicating-moderate-and-values-above-0.70-indicating-strong-construct-validity.">Standardized factor loadings above 0.40 are considered acceptable, with values between 0.40 and 0.70 indicating moderate, and values above 0.70 indicating strong construct validity.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">standardizedsolution</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     lhs  op                   rhs est.std    se      z pvalue
+1                factor1  =~  caff_intox_revised_1   0.846 0.016 51.544  0.000
+2                factor1  =~  caff_intox_revised_2   0.845 0.017 49.565  0.000
+3                factor1  =~  caff_intox_revised_3   0.785 0.023 33.820  0.000
+4                factor1  =~  caff_intox_revised_4   0.525 0.034 15.248  0.000
+5                factor1  =~  caff_intox_revised_5   0.706 0.032 22.320  0.000
+6                factor1  =~  caff_intox_revised_6   0.778 0.023 33.788  0.000
+7                factor1  =~  caff_intox_revised_7   0.442 0.037 11.977  0.000
+8                factor1  =~  caff_intox_revised_8   0.571 0.034 16.982  0.000
+9                factor1  =~  caff_intox_revised_9   0.777 0.023 33.289  0.000
+10               factor1  =~ caff_intox_revised_10   0.714 0.026 27.581  0.000
+11               factor1  =~ caff_intox_revised_11   0.755 0.029 26.317  0.000
+12               factor1  =~ caff_intox_revised_12   0.785 0.027 29.397  0.000
+13  caff_intox_revised_1   |                    t1  -0.376 0.057 -6.607  0.000
+14  caff_intox_revised_1   |                    t2   0.445 0.057  7.743  0.000
+15  caff_intox_revised_1   |                    t3   1.078 0.069 15.642  0.000
+16  caff_intox_revised_1   |                    t4   1.863 0.109 17.033  0.000
+17  caff_intox_revised_2   |                    t1  -0.222 0.056 -3.970  0.000
+18  caff_intox_revised_2   |                    t2   0.505 0.058  8.699  0.000
+19  caff_intox_revised_2   |                    t3   1.069 0.069 15.572  0.000
+20  caff_intox_revised_2   |                    t4   1.656 0.094 17.582  0.000
+21  caff_intox_revised_3   |                    t1   0.237 0.056  4.235  0.000
+22  caff_intox_revised_3   |                    t2   0.858 0.064 13.509  0.000
+23  caff_intox_revised_3   |                    t3   1.379 0.080 17.329  0.000
+24  caff_intox_revised_3   |                    t4   1.891 0.112 16.913  0.000
+25  caff_intox_revised_4   |                    t1  -0.573 0.059 -9.737  0.000
+26  caff_intox_revised_4   |                    t2  -0.024 0.055 -0.442  0.659
+27  caff_intox_revised_4   |                    t3   0.573 0.059  9.737  0.000
+28  caff_intox_revised_4   |                    t4   1.318 0.077 17.109  0.000
+29  caff_intox_revised_5   |                    t1   0.511 0.058  8.786  0.000
+30  caff_intox_revised_5   |                    t2   1.095 0.069 15.782  0.000
+31  caff_intox_revised_5   |                    t3   1.637 0.093 17.603  0.000
+32  caff_intox_revised_5   |                    t4   2.266 0.156 14.565  0.000
+33  caff_intox_revised_6   |                    t1  -0.182 0.056 -3.265  0.001
+34  caff_intox_revised_6   |                    t2   0.556 0.059  9.478  0.000
+35  caff_intox_revised_6   |                    t3   1.141 0.071 16.120  0.000
+36  caff_intox_revised_6   |                    t4   1.785 0.103 17.306  0.000
+37  caff_intox_revised_7   |                    t1  -0.556 0.059 -9.478  0.000
+38  caff_intox_revised_7   |                    t2   0.118 0.056  2.119  0.034
+39  caff_intox_revised_7   |                    t3   0.776 0.062 12.530  0.000
+40  caff_intox_revised_7   |                    t4   1.431 0.082 17.471  0.000
+41  caff_intox_revised_8   |                    t1  -0.227 0.056 -4.059  0.000
+42  caff_intox_revised_8   |                    t2   0.478 0.058  8.265  0.000
+43  caff_intox_revised_8   |                    t3   0.978 0.066 14.763  0.000
+44  caff_intox_revised_8   |                    t4   1.601 0.091 17.627  0.000
+45  caff_intox_revised_9   |                    t1   0.182 0.056  3.265  0.001
+46  caff_intox_revised_9   |                    t2   0.776 0.062 12.530  0.000
+47  caff_intox_revised_9   |                    t3   1.199 0.073 16.502  0.000
+48  caff_intox_revised_9   |                    t4   1.785 0.103 17.306  0.000
+49 caff_intox_revised_10   |                    t1  -0.044 0.055 -0.795  0.427
+50 caff_intox_revised_10   |                    t2   0.545 0.059  9.305  0.000
+51 caff_intox_revised_10   |                    t3   1.095 0.069 15.782  0.000
+52 caff_intox_revised_10   |                    t4   1.637 0.093 17.603  0.000
+53 caff_intox_revised_11   |                    t1   0.511 0.058  8.786  0.000
+54 caff_intox_revised_11   |                    t2   1.141 0.071 16.120  0.000
+55 caff_intox_revised_11   |                    t3   1.459 0.083 17.527  0.000
+56 caff_intox_revised_11   |                    t4   2.064 0.129 15.996  0.000
+57 caff_intox_revised_12   |                    t1   0.562 0.059  9.564  0.000
+58 caff_intox_revised_12   |                    t2   1.078 0.069 15.642  0.000
+59 caff_intox_revised_12   |                    t3   1.696 0.097 17.522  0.000
+60 caff_intox_revised_12   |                    t4   2.024 0.125 16.234  0.000
+61  caff_intox_revised_1  ~~  caff_intox_revised_1   0.285 0.028 10.250  0.000
+62  caff_intox_revised_2  ~~  caff_intox_revised_2   0.286 0.029  9.917  0.000
+63  caff_intox_revised_3  ~~  caff_intox_revised_3   0.384 0.036 10.545  0.000
+64  caff_intox_revised_4  ~~  caff_intox_revised_4   0.724 0.036 20.045  0.000
+65  caff_intox_revised_5  ~~  caff_intox_revised_5   0.502 0.045 11.243  0.000
+66  caff_intox_revised_6  ~~  caff_intox_revised_6   0.395 0.036 11.020  0.000
+67  caff_intox_revised_7  ~~  caff_intox_revised_7   0.805 0.033 24.657  0.000
+68  caff_intox_revised_8  ~~  caff_intox_revised_8   0.674 0.038 17.546  0.000
+69  caff_intox_revised_9  ~~  caff_intox_revised_9   0.396 0.036 10.900  0.000
+70 caff_intox_revised_10  ~~ caff_intox_revised_10   0.490 0.037 13.228  0.000
+71 caff_intox_revised_11  ~~ caff_intox_revised_11   0.430 0.043  9.945  0.000
+72 caff_intox_revised_12  ~~ caff_intox_revised_12   0.384 0.042  9.154  0.000
+73               factor1  ~~               factor1   1.000 0.000     NA     NA
+74  caff_intox_revised_1 ~*~  caff_intox_revised_1   1.000 0.000     NA     NA
+75  caff_intox_revised_2 ~*~  caff_intox_revised_2   1.000 0.000     NA     NA
+76  caff_intox_revised_3 ~*~  caff_intox_revised_3   1.000 0.000     NA     NA
+77  caff_intox_revised_4 ~*~  caff_intox_revised_4   1.000 0.000     NA     NA
+78  caff_intox_revised_5 ~*~  caff_intox_revised_5   1.000 0.000     NA     NA
+79  caff_intox_revised_6 ~*~  caff_intox_revised_6   1.000 0.000     NA     NA
+80  caff_intox_revised_7 ~*~  caff_intox_revised_7   1.000 0.000     NA     NA
+81  caff_intox_revised_8 ~*~  caff_intox_revised_8   1.000 0.000     NA     NA
+82  caff_intox_revised_9 ~*~  caff_intox_revised_9   1.000 0.000     NA     NA
+83 caff_intox_revised_10 ~*~ caff_intox_revised_10   1.000 0.000     NA     NA
+84 caff_intox_revised_11 ~*~ caff_intox_revised_11   1.000 0.000     NA     NA
+85 caff_intox_revised_12 ~*~ caff_intox_revised_12   1.000 0.000     NA     NA
+86  caff_intox_revised_1  ~1                         0.000 0.000     NA     NA
+87  caff_intox_revised_2  ~1                         0.000 0.000     NA     NA
+88  caff_intox_revised_3  ~1                         0.000 0.000     NA     NA
+89  caff_intox_revised_4  ~1                         0.000 0.000     NA     NA
+90  caff_intox_revised_5  ~1                         0.000 0.000     NA     NA
+91  caff_intox_revised_6  ~1                         0.000 0.000     NA     NA
+92  caff_intox_revised_7  ~1                         0.000 0.000     NA     NA
+93  caff_intox_revised_8  ~1                         0.000 0.000     NA     NA
+94  caff_intox_revised_9  ~1                         0.000 0.000     NA     NA
+95 caff_intox_revised_10  ~1                         0.000 0.000     NA     NA
+96 caff_intox_revised_11  ~1                         0.000 0.000     NA     NA
+97 caff_intox_revised_12  ~1                         0.000 0.000     NA     NA
+98               factor1  ~1                         0.000 0.000     NA     NA
+   ci.lower ci.upper
+1     0.814    0.878
+2     0.812    0.879
+3     0.739    0.830
+4     0.457    0.592
+5     0.644    0.768
+6     0.733    0.823
+7     0.370    0.514
+8     0.505    0.637
+9     0.732    0.823
+10    0.664    0.765
+11    0.698    0.811
+12    0.733    0.837
+13   -0.487   -0.264
+14    0.332    0.558
+15    0.943    1.213
+16    1.648    2.077
+17   -0.332   -0.112
+18    0.392    0.619
+19    0.934    1.203
+20    1.472    1.841
+21    0.127    0.347
+22    0.734    0.983
+23    1.223    1.535
+24    1.672    2.110
+25   -0.689   -0.458
+26   -0.133    0.084
+27    0.458    0.689
+28    1.167    1.469
+29    0.397    0.625
+30    0.959    1.231
+31    1.455    1.820
+32    1.961    2.571
+33   -0.291   -0.073
+34    0.441    0.671
+35    1.002    1.280
+36    1.583    1.987
+37   -0.671   -0.441
+38    0.009    0.227
+39    0.655    0.898
+40    1.271    1.592
+41   -0.337   -0.117
+42    0.364    0.591
+43    0.848    1.108
+44    1.423    1.779
+45    0.073    0.291
+46    0.655    0.898
+47    1.057    1.342
+48    1.583    1.987
+49   -0.153    0.065
+50    0.430    0.659
+51    0.959    1.231
+52    1.455    1.820
+53    0.397    0.625
+54    1.002    1.280
+55    1.296    1.622
+56    1.811    2.316
+57    0.447    0.677
+58    0.943    1.213
+59    1.506    1.886
+60    1.780    2.268
+61    0.230    0.339
+62    0.229    0.342
+63    0.313    0.455
+64    0.654    0.795
+65    0.414    0.589
+66    0.325    0.465
+67    0.741    0.869
+68    0.599    0.749
+69    0.325    0.467
+70    0.417    0.562
+71    0.346    0.515
+72    0.302    0.466
+73    1.000    1.000
+74    1.000    1.000
+75    1.000    1.000
+76    1.000    1.000
+77    1.000    1.000
+78    1.000    1.000
+79    1.000    1.000
+80    1.000    1.000
+81    1.000    1.000
+82    1.000    1.000
+83    1.000    1.000
+84    1.000    1.000
+85    1.000    1.000
+86    0.000    0.000
+87    0.000    0.000
+88    0.000    0.000
+89    0.000    0.000
+90    0.000    0.000
+91    0.000    0.000
+92    0.000    0.000
+93    0.000    0.000
+94    0.000    0.000
+95    0.000    0.000
+96    0.000    0.000
+97    0.000    0.000
+98    0.000    0.000</code></pre>
+</div>
+</div>
+</section>
+<section id="results-1" class="level3">
+<h3 class="anchored" data-anchor-id="results-1">Results:</h3>
+<ul>
+<li>Most of the factor loadings are above 0.70, expect for three items. Item 4 (Difficulty falling asleep), item 7 (Frequent or strong urge to urinate) and item 8 (Stomach discomfort or bowel urgency) show lower factor loadings, which may indicate that these items fit the single factor model less.</li>
+</ul>
+</section>
+</section>
+<section id="scale-reliability-with-mcdonalds-omega" class="level1">
+<h1>Scale reliability with McDonald’s Omega</h1>
+<section id="as-our-variables-are-categorical-the-value-of-omega-provides-a-more-reliable-measurement-compared-to-cronbachs-alpha." class="level3">
+<h3 class="anchored" data-anchor-id="as-our-variables-are-categorical-the-value-of-omega-provides-a-more-reliable-measurement-compared-to-cronbachs-alpha.">As our variables are categorical, the value of omega provides a more reliable measurement compared to Cronbach’s Alpha.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">reliability</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            factor1
+alpha     0.8850547
+alpha.ord 0.9209158
+omega     0.8955639
+omega2    0.8955639
+omega3    0.9128838
+avevar    0.5205384</code></pre>
+</div>
+</div>
+</section>
+<section id="results-2" class="level3">
+<h3 class="anchored" data-anchor-id="results-2">Results:</h3>
+<p>The single-factor model demonstrates excellent internal consistency and reliability. McDonald’s omega was found to be 0.896, which well exceeds the recommended threshold of 0.70, indicating high scale reliability for categorical data. Furthermore, the Average Variance Extracted (AVE) is 0.521, passing the 0.50 cut-off criterion, which confirms that the latent factor accounts for the majority of the variance in the observed items.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

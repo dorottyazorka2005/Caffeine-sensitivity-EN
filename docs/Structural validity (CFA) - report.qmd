@@ -1,0 +1,117 @@
+---
+title: "Testing structural validity (CFA)"
+format: html
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+## Loading packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(lavaan)
+library(semTools)
+```
+
+## Loading clean dataset
+
+```{r}
+data_clean <- read_csv(here("data/clean/caffeine_sensitivity_english_clean.csv"))
+
+```
+
+# Building single factor CFA model
+
+### Based on EFA and ESEM-analysis we predict that all the 12 items load on one single latent variable.
+
+```{r}
+model <- 'factor1 =~ 
+caff_intox_revised_1 + 
+caff_intox_revised_2 + 
+caff_intox_revised_3 +
+caff_intox_revised_4 + 
+caff_intox_revised_5 + 
+caff_intox_revised_6 + 
+caff_intox_revised_7 +
+caff_intox_revised_8 + 
+caff_intox_revised_9 + 
+caff_intox_revised_10 +
+caff_intox_revised_11 + 
+caff_intox_revised_12'
+```
+
+# Fitting the model with WLSMV estimator as the variables in the dataset are ordinal
+
+### As the 12 items are measured on a 5-point Likert-scale, the assumption of multivariate normality required for standard Maximum Likelihood (ML) is violated. Therefore we use WLSMV (Weighted Least Squares Means and Variance-adjusted).
+
+```{r}
+fit <- cfa(model,
+  data= data_clean,
+  estimator= "WLSMV",
+  ordered= c("caff_intox_revised_1", 
+             "caff_intox_revised_2", 
+             "caff_intox_revised_3", 
+             "caff_intox_revised_4",
+             "caff_intox_revised_5", 
+             "caff_intox_revised_6", 
+             "caff_intox_revised_7", 
+             "caff_intox_revised_8",
+             "caff_intox_revised_9", 
+             "caff_intox_revised_10", 
+             "caff_intox_revised_11", 
+             "caff_intox_revised_12")
+  )
+```
+
+# Analyzing model fit indices - using the scaled values of CFI, TLI, RMSEA and SRMR
+
+### As we used WLSMV estimator, we focus on the scaled values of CFI, TLI, RMSEA and SRMR.
+
+#### The widely accepted cut-off points for these model fit indices are the following:
+
+-   CFI (Comparative Fit index): 0.95 \<= excellent fit, 0.90 \<= acceptable fit
+
+-   TLI (Tucker-Lewis Index): 0.95 \<= excellent fit, 0.90 \<= acceptable fit
+
+-   RMSEA (Root Mean Square Error of Approximation) : 0.06 \>= excellent fit, 0.08 \>= good fit
+
+-   SRMR (Standardized Root Mean Square Residual): 0.05 \>= excellent fit, 0.08 \>= good fit
+
+```{r}
+fitMeasures(fit, c("cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr"))
+```
+
+## Results:
+
+-   CFI and TLI indicates a good model fit as their values are around 0.95
+
+-   RMSEA is above the recommended threshold, therefore indicating a poor model fit.
+
+-   SRMR is below the 0.08 threshold, indicating a good model fit.
+
+# Factor loadings in the single factor CFA model
+
+### Standardized factor loadings above 0.40 are considered acceptable, with values between 0.40 and 0.70 indicating moderate, and values above 0.70 indicating strong construct validity.
+
+```{r}
+standardizedsolution(fit)
+```
+
+### Results:
+
+-   Most of the factor loadings are above 0.70, expect for three items. Item 4 (Difficulty falling asleep), item 7 (Frequent or strong urge to urinate) and item 8 (Stomach discomfort or bowel urgency) show lower factor loadings, which may indicate that these items fit the single factor model less.
+
+# Scale reliability with McDonald's Omega
+
+### As our variables are categorical, the value of omega provides a more reliable measurement compared to Cronbach's Alpha.
+
+```{r}
+reliability(fit)
+```
+
+### Results:
+
+The single-factor model demonstrates excellent internal consistency and reliability. McDonald’s omega was found to be 0.896, which well exceeds the recommended threshold of 0.70, indicating high scale reliability for categorical data. Furthermore, the Average Variance Extracted (AVE) is 0.521, passing the 0.50 cut-off criterion, which confirms that the latent factor accounts for the majority of the variance in the observed items.
