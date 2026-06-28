@@ -1,11 +1,14 @@
 ---
+
+---
 title: "Testing structural validity (CFA)"
 format: html
 editor: visual
-execute:
-  warning: false
-  message: false
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
 
 ## Loading packages
 
