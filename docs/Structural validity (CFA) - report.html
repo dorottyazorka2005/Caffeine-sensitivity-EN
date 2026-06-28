@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>structural-validity-(cfa---report</title>
+<title>Testing structural validity (CFA)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -98,7 +98,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<hr>
 <section id="loading-packages" class="level2">
 <h2 class="anchored" data-anchor-id="loading-packages">Loading packages</h2>
 <div class="cell">
@@ -159,10 +158,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="analyzing-model-fit-indices---using-the-scaled-values-of-cfi-tli-rmsea-and-srmr" class="level1">
-<h1>Analyzing model fit indices - using the scaled values of CFI, TLI, RMSEA and SRMR</h1>
-<section id="as-we-used-wlsmv-estimator-we-focus-on-the-scaled-values-of-cfi-tli-rmsea-and-srmr." class="level3">
-<h3 class="anchored" data-anchor-id="as-we-used-wlsmv-estimator-we-focus-on-the-scaled-values-of-cfi-tli-rmsea-and-srmr.">As we used WLSMV estimator, we focus on the scaled values of CFI, TLI, RMSEA and SRMR.</h3>
+<section id="analyzing-model-fit-indices---using-the-robust-values-of-cfi-tli-rmsea-and-srmr" class="level1">
+<h1>Analyzing model fit indices - using the robust values of CFI, TLI, RMSEA and SRMR</h1>
+<section id="as-we-used-wlsmv-estimator-we-focus-on-the-robust-values-of-cfi-tli-rmsea-and-srmr." class="level3">
+<h3 class="anchored" data-anchor-id="as-we-used-wlsmv-estimator-we-focus-on-the-robust-values-of-cfi-tli-rmsea-and-srmr.">As we used WLSMV estimator, we focus on the robust values of CFI, TLI, RMSEA and SRMR.</h3>
 <section id="the-widely-accepted-cut-off-points-for-these-model-fit-indices-are-the-following" class="level4">
 <h4 class="anchored" data-anchor-id="the-widely-accepted-cut-off-points-for-these-model-fit-indices-are-the-following">The widely accepted cut-off points for these model fit indices are the following:</h4>
 <ul>
@@ -172,10 +171,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p>SRMR (Standardized Root Mean Square Residual): 0.05 &gt;= excellent fit, 0.08 &gt;= good fit</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit, <span class="fu">c</span>(<span class="st">"cfi.scaled"</span>, <span class="st">"tli.scaled"</span>, <span class="st">"rmsea.scaled"</span>, <span class="st">"srmr"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit, <span class="fu">c</span>(<span class="st">"cfi.robust"</span>, <span class="st">"tli.robust"</span>, <span class="st">"rmsea.robust"</span>, <span class="st">"srmr"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  cfi.scaled   tli.scaled rmsea.scaled         srmr 
-       0.958        0.948        0.099        0.061 </code></pre>
+<pre><code>  cfi.robust   tli.robust rmsea.robust         srmr 
+       0.865        0.834        0.136        0.061 </code></pre>
 </div>
 </div>
 </section>
@@ -183,7 +182,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results:</h2>
 <ul>
-<li><p>CFI and TLI indicates a good model fit as their values are around 0.95</p></li>
+<li><p>CFI and TLI indicates a poor model fit as their values are below 0.90</p></li>
 <li><p>RMSEA is above the recommended threshold, therefore indicating a poor model fit.</p></li>
 <li><p>SRMR is below the 0.08 threshold, indicating a good model fit.</p></li>
 </ul>

@@ -1,6 +1,4 @@
 ---
-
----
 title: "Testing structural validity (CFA)"
 format: html
 editor: visual
@@ -69,9 +67,9 @@ fit <- cfa(model,
   )
 ```
 
-# Analyzing model fit indices - using the scaled values of CFI, TLI, RMSEA and SRMR
+# Analyzing model fit indices - using the robust values of CFI, TLI, RMSEA and SRMR
 
-### As we used WLSMV estimator, we focus on the scaled values of CFI, TLI, RMSEA and SRMR.
+### As we used WLSMV estimator, we focus on the robust values of CFI, TLI, RMSEA and SRMR.
 
 #### The widely accepted cut-off points for these model fit indices are the following:
 
@@ -84,12 +82,12 @@ fit <- cfa(model,
 -   SRMR (Standardized Root Mean Square Residual): 0.05 \>= excellent fit, 0.08 \>= good fit
 
 ```{r}
-fitMeasures(fit, c("cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr"))
+fitMeasures(fit, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
 ```
 
 ## Results:
 
--   CFI and TLI indicates a good model fit as their values are around 0.95
+-   CFI and TLI indicates a poor model fit as their values are below 0.90
 
 -   RMSEA is above the recommended threshold, therefore indicating a poor model fit.
 
