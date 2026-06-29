@@ -116,3 +116,80 @@ reliability(fit)
 ### Results:
 
 The single-factor model demonstrates excellent internal consistency and reliability. McDonald’s omega was found to be 0.896, which well exceeds the recommended threshold of 0.70, indicating high scale reliability for categorical data. Furthermore, the Average Variance Extracted (AVE) is 0.521, passing the 0.50 cut-off criterion, which confirms that the latent factor accounts for the majority of the variance in the observed items.
+
+# Removing item 2 (Feeling anxious or nervous) to evaluate model fit
+
+```{r}
+items_full <- paste0("caff_intox_revised_", 1:12)
+items1 <- items_full[items_full != "caff_intox_revised_2"]
+
+model2 <- paste0("factor1 =~ ", paste(items1, collapse = " + "))
+fit2 <- cfa(model2,
+            data= data_clean,
+            estimator= "WLSMV",
+            ordered = items1)
+fitMeasures(fit2, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
+standardizedsolution(fit2)
+reliability(fit2)
+```
+
+### The model fit indices improved after removing item 2, but the value of TLI and RMSEA still suggests a bad model fit.
+
+# Removing item 1 (Restlessness, feeling unable to realx) to evaluate model fit
+
+```{r}
+items2 <- items_full[items_full != "caff_intox_revised_1"]
+
+model3 <- paste0("factor1 =~ ", paste(items2, collapse = " + "))
+fit3 <- cfa(model3,
+            data= data_clean,
+            estimator= "WLSMV",
+            ordered = items2)
+fitMeasures(fit3, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
+standardizedsolution(fit3)
+reliability(fit3)
+```
+
+### The model fit indices improved after removing item 1, but the value of TLI and RMSEA still suggests a bad model fit.
+
+# Building a bifactor model
+
+```{r}
+items3 <- items_full[
+  !items_full %in% c(
+    "caff_intox_revised_4",
+    "caff_intox_revised_7",
+    "caff_intox_revised_8"
+  )
+]
+
+bifactor_model <- '
+  G =~ caff_intox_revised_1 + caff_intox_revised_2 +
+     caff_intox_revised_3 + 
+     caff_intox_revised_5 + caff_intox_revised_6 +
+     caff_intox_revised_9 + caff_intox_revised_10 +
+     caff_intox_revised_11 + caff_intox_revised_12
+
+CNS =~ 
+  caff_intox_revised_1 + caff_intox_revised_2 + caff_intox_revised_3 + caff_intox_revised_6
+ANS =~ 
+  caff_intox_revised_10 + caff_intox_revised_11 + caff_intox_revised_12 + caff_intox_revised_9 + caff_intox_revised_5
+
+G ~~ 0*ANS
+G ~~ 0*CNS
+
+ANS ~~ 0*CNS
+'
+
+fit_bi <- cfa(
+  bifactor_model,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = items3
+)
+
+fitMeasures(fit_bi, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
+standardizedsolution(fit_bi)
+reliability(fit_bi)
+summary(fit_bi)
+```
