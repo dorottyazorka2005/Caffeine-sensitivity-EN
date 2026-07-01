@@ -185,11 +185,57 @@ fit_bi <- cfa(
   bifactor_model,
   data = data_clean,
   estimator = "WLSMV",
-  ordered = items3
+  ordered = items3,
+  control = list(iter.max = 1000), 
+  optim.method = "nlminb"
 )
 
 fitMeasures(fit_bi, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
 standardizedsolution(fit_bi)
 reliability(fit_bi)
 summary(fit_bi)
+```
+
+## Correlating the items in the single factor model
+
+```{r}
+library(lavaan)
+model1.1 <- 'factor1.1 =~ 
+caff_intox_revised_1 + 
+caff_intox_revised_2 + 
+caff_intox_revised_3 +
+caff_intox_revised_4 + 
+caff_intox_revised_5 + 
+caff_intox_revised_6 + 
+caff_intox_revised_7 +
+caff_intox_revised_8 + 
+caff_intox_revised_9 + 
+caff_intox_revised_10 +
+caff_intox_revised_11 + 
+caff_intox_revised_12
+
+caff_intox_revised_2~~caff_intox_revised_3
+
+caff_intox_revised_7~~caff_intox_revised_8
+'
+
+fit1.1 <- cfa(model1.1,
+  data= data_clean,
+  estimator= "WLSMV",
+  ordered= c("caff_intox_revised_1", 
+             "caff_intox_revised_2", 
+             "caff_intox_revised_3", 
+             "caff_intox_revised_4",
+             "caff_intox_revised_5", 
+             "caff_intox_revised_6", 
+             "caff_intox_revised_7", 
+             "caff_intox_revised_8",
+             "caff_intox_revised_9", 
+             "caff_intox_revised_10", 
+             "caff_intox_revised_11", 
+             "caff_intox_revised_12")
+  )
+
+fitMeasures(fit1.1, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
+
 ```
