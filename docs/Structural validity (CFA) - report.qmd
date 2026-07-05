@@ -179,6 +179,10 @@ G ~~ 0*ANS
 G ~~ 0*CNS
 
 ANS ~~ 0*CNS
+
+G ~~ 1*G
+ANS ~~ 1*ANS
+CNS ~~ 1*CNS
 '
 
 fit_bi <- cfa(
@@ -186,13 +190,10 @@ fit_bi <- cfa(
   data = data_clean,
   estimator = "WLSMV",
   ordered = items3,
-  control = list(iter.max = 1000), 
-  optim.method = "nlminb"
 )
 
 fitMeasures(fit_bi, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
 standardizedsolution(fit_bi)
-reliability(fit_bi)
 summary(fit_bi)
 ```
 

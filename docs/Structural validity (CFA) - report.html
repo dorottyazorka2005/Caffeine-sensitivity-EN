@@ -852,6 +852,400 @@ omega3    0.8903330
 avevar    0.5051144</code></pre>
 </div>
 </div>
+<section id="the-model-fit-indices-improved-after-removing-item-1-but-the-value-of-tli-and-rmsea-still-suggests-a-bad-model-fit." class="level3">
+<h3 class="anchored" data-anchor-id="the-model-fit-indices-improved-after-removing-item-1-but-the-value-of-tli-and-rmsea-still-suggests-a-bad-model-fit.">The model fit indices improved after removing item 1, but the value of TLI and RMSEA still suggests a bad model fit.</h3>
+</section>
+</section>
+<section id="building-a-bifactor-model" class="level1">
+<h1>Building a bifactor model</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>items3 <span class="ot">&lt;-</span> items_full[</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">!</span>items_full <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"caff_intox_revised_4"</span>,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"caff_intox_revised_7"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"caff_intox_revised_8"</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>bifactor_model <span class="ot">&lt;-</span> <span class="st">'</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="st">  G =~ caff_intox_revised_1 + caff_intox_revised_2 +</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="st">     caff_intox_revised_3 + </span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="st">     caff_intox_revised_5 + caff_intox_revised_6 +</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="st">     caff_intox_revised_9 + caff_intox_revised_10 +</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="st">     caff_intox_revised_11 + caff_intox_revised_12</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="st">CNS =~ </span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="st">  caff_intox_revised_1 + caff_intox_revised_2 + caff_intox_revised_3 + caff_intox_revised_6</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="st">ANS =~ </span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="st">  caff_intox_revised_10 + caff_intox_revised_11 + caff_intox_revised_12 + caff_intox_revised_9 + caff_intox_revised_5</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="st">G ~~ 0*ANS</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="st">G ~~ 0*CNS</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="st">ANS ~~ 0*CNS</span></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="st">G ~~ 1*G</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="st">ANS ~~ 1*ANS</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="st">CNS ~~ 1*CNS</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>fit_bi <span class="ot">&lt;-</span> <span class="fu">cfa</span>(</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>  bifactor_model,</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> data_clean,</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimator =</span> <span class="st">"WLSMV"</span>,</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">ordered =</span> items3,</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit_bi, <span class="fu">c</span>(<span class="st">"cfi.robust"</span>, <span class="st">"tli.robust"</span>, <span class="st">"rmsea.robust"</span>, <span class="st">"srmr"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  cfi.robust   tli.robust rmsea.robust         srmr 
+       0.680        0.452        0.307        0.072 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">standardizedsolution</span>(fit_bi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     lhs  op                   rhs est.std    se      z pvalue
+1                      G  =~  caff_intox_revised_1   1.000 0.000     NA     NA
+2                      G  =~  caff_intox_revised_2   0.818 0.021 39.649  0.000
+3                      G  =~  caff_intox_revised_3   0.823 0.025 32.483  0.000
+4                      G  =~  caff_intox_revised_5   0.662 0.034 19.561  0.000
+5                      G  =~  caff_intox_revised_6   0.809 0.025 32.238  0.000
+6                      G  =~  caff_intox_revised_9   0.709 0.027 26.622  0.000
+7                      G  =~ caff_intox_revised_10   0.587 0.032 18.108  0.000
+8                      G  =~ caff_intox_revised_11   0.696 0.031 22.224  0.000
+9                      G  =~ caff_intox_revised_12   0.736 0.029 25.662  0.000
+10                   CNS  =~  caff_intox_revised_1   1.000 0.000     NA     NA
+11                   CNS  =~  caff_intox_revised_2  -0.006 0.021 -0.279  0.780
+12                   CNS  =~  caff_intox_revised_3  -0.138 0.028 -4.879  0.000
+13                   CNS  =~  caff_intox_revised_6  -0.140 0.025 -5.500  0.000
+14                   ANS  =~ caff_intox_revised_10   1.000 0.000     NA     NA
+15                   ANS  =~ caff_intox_revised_11   0.253 0.038  6.737  0.000
+16                   ANS  =~ caff_intox_revised_12   0.166 0.036  4.654  0.000
+17                   ANS  =~  caff_intox_revised_9   0.251 0.031  8.087  0.000
+18                   ANS  =~  caff_intox_revised_5   0.196 0.037  5.278  0.000
+19                     G  ~~                   ANS   0.000 0.000     NA     NA
+20                     G  ~~                   CNS   0.000 0.000     NA     NA
+21                   CNS  ~~                   ANS   0.000 0.000     NA     NA
+22                     G  ~~                     G   1.000 0.000     NA     NA
+23                   ANS  ~~                   ANS   1.000 0.000     NA     NA
+24                   CNS  ~~                   CNS   1.000 0.000     NA     NA
+25  caff_intox_revised_1   |                    t1  -0.376 0.057 -6.607  0.000
+26  caff_intox_revised_1   |                    t2   0.445 0.057  7.743  0.000
+27  caff_intox_revised_1   |                    t3   1.078 0.069 15.642  0.000
+28  caff_intox_revised_1   |                    t4   1.863 0.109 17.033  0.000
+29  caff_intox_revised_2   |                    t1  -0.222 0.056 -3.970  0.000
+30  caff_intox_revised_2   |                    t2   0.505 0.058  8.699  0.000
+31  caff_intox_revised_2   |                    t3   1.069 0.069 15.572  0.000
+32  caff_intox_revised_2   |                    t4   1.656 0.094 17.582  0.000
+33  caff_intox_revised_3   |                    t1   0.237 0.056  4.235  0.000
+34  caff_intox_revised_3   |                    t2   0.858 0.064 13.509  0.000
+35  caff_intox_revised_3   |                    t3   1.379 0.080 17.329  0.000
+36  caff_intox_revised_3   |                    t4   1.891 0.112 16.913  0.000
+37  caff_intox_revised_5   |                    t1   0.511 0.058  8.786  0.000
+38  caff_intox_revised_5   |                    t2   1.095 0.069 15.782  0.000
+39  caff_intox_revised_5   |                    t3   1.637 0.093 17.603  0.000
+40  caff_intox_revised_5   |                    t4   2.266 0.156 14.565  0.000
+41  caff_intox_revised_6   |                    t1  -0.182 0.056 -3.265  0.001
+42  caff_intox_revised_6   |                    t2   0.556 0.059  9.478  0.000
+43  caff_intox_revised_6   |                    t3   1.141 0.071 16.120  0.000
+44  caff_intox_revised_6   |                    t4   1.785 0.103 17.306  0.000
+45  caff_intox_revised_9   |                    t1   0.182 0.056  3.265  0.001
+46  caff_intox_revised_9   |                    t2   0.776 0.062 12.530  0.000
+47  caff_intox_revised_9   |                    t3   1.199 0.073 16.502  0.000
+48  caff_intox_revised_9   |                    t4   1.785 0.103 17.306  0.000
+49 caff_intox_revised_10   |                    t1  -0.044 0.055 -0.795  0.427
+50 caff_intox_revised_10   |                    t2   0.545 0.059  9.305  0.000
+51 caff_intox_revised_10   |                    t3   1.095 0.069 15.782  0.000
+52 caff_intox_revised_10   |                    t4   1.637 0.093 17.603  0.000
+53 caff_intox_revised_11   |                    t1   0.511 0.058  8.786  0.000
+54 caff_intox_revised_11   |                    t2   1.141 0.071 16.120  0.000
+55 caff_intox_revised_11   |                    t3   1.459 0.083 17.527  0.000
+56 caff_intox_revised_11   |                    t4   2.064 0.129 15.996  0.000
+57 caff_intox_revised_12   |                    t1   0.562 0.059  9.564  0.000
+58 caff_intox_revised_12   |                    t2   1.078 0.069 15.642  0.000
+59 caff_intox_revised_12   |                    t3   1.696 0.097 17.522  0.000
+60 caff_intox_revised_12   |                    t4   2.024 0.125 16.234  0.000
+61  caff_intox_revised_1  ~~  caff_intox_revised_1  -1.000 0.000     NA     NA
+62  caff_intox_revised_2  ~~  caff_intox_revised_2   0.330 0.034  9.738  0.000
+63  caff_intox_revised_3  ~~  caff_intox_revised_3   0.303 0.045  6.704  0.000
+64  caff_intox_revised_5  ~~  caff_intox_revised_5   0.523 0.044 11.792  0.000
+65  caff_intox_revised_6  ~~  caff_intox_revised_6   0.325 0.044  7.467  0.000
+66  caff_intox_revised_9  ~~  caff_intox_revised_9   0.434 0.034 12.910  0.000
+67 caff_intox_revised_10  ~~ caff_intox_revised_10  -0.344 0.038 -9.054  0.000
+68 caff_intox_revised_11  ~~ caff_intox_revised_11   0.451 0.041 11.060  0.000
+69 caff_intox_revised_12  ~~ caff_intox_revised_12   0.431 0.042 10.282  0.000
+70  caff_intox_revised_1 ~*~  caff_intox_revised_1   1.000 0.000     NA     NA
+71  caff_intox_revised_2 ~*~  caff_intox_revised_2   1.000 0.000     NA     NA
+72  caff_intox_revised_3 ~*~  caff_intox_revised_3   1.000 0.000     NA     NA
+73  caff_intox_revised_5 ~*~  caff_intox_revised_5   1.000 0.000     NA     NA
+74  caff_intox_revised_6 ~*~  caff_intox_revised_6   1.000 0.000     NA     NA
+75  caff_intox_revised_9 ~*~  caff_intox_revised_9   1.000 0.000     NA     NA
+76 caff_intox_revised_10 ~*~ caff_intox_revised_10   1.000 0.000     NA     NA
+77 caff_intox_revised_11 ~*~ caff_intox_revised_11   1.000 0.000     NA     NA
+78 caff_intox_revised_12 ~*~ caff_intox_revised_12   1.000 0.000     NA     NA
+79  caff_intox_revised_1  ~1                         0.000 0.000     NA     NA
+80  caff_intox_revised_2  ~1                         0.000 0.000     NA     NA
+81  caff_intox_revised_3  ~1                         0.000 0.000     NA     NA
+82  caff_intox_revised_5  ~1                         0.000 0.000     NA     NA
+83  caff_intox_revised_6  ~1                         0.000 0.000     NA     NA
+84  caff_intox_revised_9  ~1                         0.000 0.000     NA     NA
+85 caff_intox_revised_10  ~1                         0.000 0.000     NA     NA
+86 caff_intox_revised_11  ~1                         0.000 0.000     NA     NA
+87 caff_intox_revised_12  ~1                         0.000 0.000     NA     NA
+88                     G  ~1                         0.000 0.000     NA     NA
+89                   CNS  ~1                         0.000 0.000     NA     NA
+90                   ANS  ~1                         0.000 0.000     NA     NA
+   ci.lower ci.upper
+1     1.000    1.000
+2     0.778    0.859
+3     0.774    0.873
+4     0.596    0.729
+5     0.760    0.859
+6     0.657    0.761
+7     0.523    0.650
+8     0.635    0.758
+9     0.680    0.792
+10    1.000    1.000
+11   -0.046    0.035
+12   -0.194   -0.083
+13   -0.190   -0.090
+14    1.000    1.000
+15    0.179    0.327
+16    0.096    0.236
+17    0.190    0.312
+18    0.123    0.269
+19    0.000    0.000
+20    0.000    0.000
+21    0.000    0.000
+22    1.000    1.000
+23    1.000    1.000
+24    1.000    1.000
+25   -0.487   -0.264
+26    0.332    0.558
+27    0.943    1.213
+28    1.648    2.077
+29   -0.332   -0.112
+30    0.392    0.619
+31    0.934    1.203
+32    1.472    1.841
+33    0.127    0.347
+34    0.734    0.983
+35    1.223    1.535
+36    1.672    2.110
+37    0.397    0.625
+38    0.959    1.231
+39    1.455    1.820
+40    1.961    2.571
+41   -0.291   -0.073
+42    0.441    0.671
+43    1.002    1.280
+44    1.583    1.987
+45    0.073    0.291
+46    0.655    0.898
+47    1.057    1.342
+48    1.583    1.987
+49   -0.153    0.065
+50    0.430    0.659
+51    0.959    1.231
+52    1.455    1.820
+53    0.397    0.625
+54    1.002    1.280
+55    1.296    1.622
+56    1.811    2.316
+57    0.447    0.677
+58    0.943    1.213
+59    1.506    1.886
+60    1.780    2.268
+61   -1.000   -1.000
+62    0.264    0.397
+63    0.214    0.392
+64    0.436    0.610
+65    0.240    0.411
+66    0.368    0.500
+67   -0.419   -0.270
+68    0.371    0.531
+69    0.349    0.513
+70    1.000    1.000
+71    1.000    1.000
+72    1.000    1.000
+73    1.000    1.000
+74    1.000    1.000
+75    1.000    1.000
+76    1.000    1.000
+77    1.000    1.000
+78    1.000    1.000
+79    0.000    0.000
+80    0.000    0.000
+81    0.000    0.000
+82    0.000    0.000
+83    0.000    0.000
+84    0.000    0.000
+85    0.000    0.000
+86    0.000    0.000
+87    0.000    0.000
+88    0.000    0.000
+89    0.000    0.000
+90    0.000    0.000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_bi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lavaan 0.6-21 ended normally after 25 iterations
+
+  Estimator                                       DWLS
+  Optimization method                           NLMINB
+  Number of model parameters                        51
+
+  Number of observations                           512
+
+Model Test User Model:
+                                              Standard      Scaled
+  Test Statistic                               154.583     284.909
+  Degrees of freedom                                21          21
+  P-value (Unknown)                                 NA       0.000
+  Scaling correction factor                                  0.549
+  Shift parameter                                            3.232
+    simple second-order correction                                
+
+Parameter Estimates:
+
+  Parameterization                               Delta
+  Standard errors                           Robust.sem
+  Information                                 Expected
+  Information saturated (h1) model        Unstructured
+
+Latent Variables:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)
+  G =~                                                
+    cff_ntx_rvsd_1    1.000                           
+    cff_ntx_rvsd_2    0.818    0.021   39.649    0.000
+    cff_ntx_rvsd_3    0.823    0.025   32.483    0.000
+    cff_ntx_rvsd_5    0.662    0.034   19.561    0.000
+    cff_ntx_rvsd_6    0.809    0.025   32.238    0.000
+    cff_ntx_rvsd_9    0.709    0.027   26.622    0.000
+    cff_ntx_rvs_10    0.587    0.032   18.108    0.000
+    cff_ntx_rvs_11    0.696    0.031   22.224    0.000
+    cff_ntx_rvs_12    0.736    0.029   25.662    0.000
+  CNS =~                                              
+    cff_ntx_rvsd_1    1.000                           
+    cff_ntx_rvsd_2   -0.006    0.021   -0.279    0.780
+    cff_ntx_rvsd_3   -0.138    0.028   -4.879    0.000
+    cff_ntx_rvsd_6   -0.140    0.025   -5.500    0.000
+  ANS =~                                              
+    cff_ntx_rvs_10    1.000                           
+    cff_ntx_rvs_11    0.253    0.038    6.737    0.000
+    cff_ntx_rvs_12    0.166    0.036    4.654    0.000
+    cff_ntx_rvsd_9    0.251    0.031    8.087    0.000
+    cff_ntx_rvsd_5    0.196    0.037    5.278    0.000
+
+Covariances:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)
+  G ~~                                                
+    ANS               0.000                           
+    CNS               0.000                           
+  CNS ~~                                              
+    ANS               0.000                           
+
+Thresholds:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)
+    cff_ntx_rv_1|1   -0.376    0.057   -6.607    0.000
+    cff_ntx_rv_1|2    0.445    0.057    7.743    0.000
+    cff_ntx_rv_1|3    1.078    0.069   15.642    0.000
+    cff_ntx_rv_1|4    1.863    0.109   17.033    0.000
+    cff_ntx_rv_2|1   -0.222    0.056   -3.970    0.000
+    cff_ntx_rv_2|2    0.505    0.058    8.699    0.000
+    cff_ntx_rv_2|3    1.069    0.069   15.572    0.000
+    cff_ntx_rv_2|4    1.656    0.094   17.582    0.000
+    cff_ntx_rv_3|1    0.237    0.056    4.235    0.000
+    cff_ntx_rv_3|2    0.858    0.064   13.509    0.000
+    cff_ntx_rv_3|3    1.379    0.080   17.329    0.000
+    cff_ntx_rv_3|4    1.891    0.112   16.913    0.000
+    cff_ntx_rv_5|1    0.511    0.058    8.786    0.000
+    cff_ntx_rv_5|2    1.095    0.069   15.782    0.000
+    cff_ntx_rv_5|3    1.637    0.093   17.603    0.000
+    cff_ntx_rv_5|4    2.266    0.156   14.565    0.000
+    cff_ntx_rv_6|1   -0.182    0.056   -3.265    0.001
+    cff_ntx_rv_6|2    0.556    0.059    9.478    0.000
+    cff_ntx_rv_6|3    1.141    0.071   16.120    0.000
+    cff_ntx_rv_6|4    1.785    0.103   17.306    0.000
+    cff_ntx_rv_9|1    0.182    0.056    3.265    0.001
+    cff_ntx_rv_9|2    0.776    0.062   12.530    0.000
+    cff_ntx_rv_9|3    1.199    0.073   16.502    0.000
+    cff_ntx_rv_9|4    1.785    0.103   17.306    0.000
+    cff_ntx_r_10|1   -0.044    0.055   -0.795    0.427
+    cff_ntx_r_10|2    0.545    0.059    9.305    0.000
+    cff_ntx_r_10|3    1.095    0.069   15.782    0.000
+    cff_ntx_r_10|4    1.637    0.093   17.603    0.000
+    cff_ntx_r_11|1    0.511    0.058    8.786    0.000
+    cff_ntx_r_11|2    1.141    0.071   16.120    0.000
+    cff_ntx_r_11|3    1.459    0.083   17.527    0.000
+    cff_ntx_r_11|4    2.064    0.129   15.996    0.000
+    cff_ntx_r_12|1    0.562    0.059    9.564    0.000
+    cff_ntx_r_12|2    1.078    0.069   15.642    0.000
+    cff_ntx_r_12|3    1.696    0.097   17.522    0.000
+    cff_ntx_r_12|4    2.024    0.125   16.234    0.000
+
+Variances:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)
+    G                 1.000                           
+    ANS               1.000                           
+    CNS               1.000                           
+   .cff_ntx_rvsd_1   -1.000                           
+   .cff_ntx_rvsd_2    0.330                           
+   .cff_ntx_rvsd_3    0.303                           
+   .cff_ntx_rvsd_5    0.523                           
+   .cff_ntx_rvsd_6    0.325                           
+   .cff_ntx_rvsd_9    0.434                           
+   .cff_ntx_rvs_10   -0.344                           
+   .cff_ntx_rvs_11    0.451                           
+   .cff_ntx_rvs_12    0.431                           </code></pre>
+</div>
+</div>
+<section id="correlating-the-items-in-the-single-factor-model" class="level2">
+<h2 class="anchored" data-anchor-id="correlating-the-items-in-the-single-factor-model">Correlating the items in the single factor model</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>model1<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="st">'factor1.1 =~ </span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_1 + </span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_2 + </span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_3 +</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_4 + </span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_5 + </span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_6 + </span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_7 +</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_8 + </span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_9 + </span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_10 +</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_11 + </span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_12</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_2~~caff_intox_revised_3</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="st">caff_intox_revised_7~~caff_intox_revised_8</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>fit1<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">cfa</span>(model1<span class="fl">.1</span>,</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span> data_clean,</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimator=</span> <span class="st">"WLSMV"</span>,</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">ordered=</span> <span class="fu">c</span>(<span class="st">"caff_intox_revised_1"</span>, </span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_2"</span>, </span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_3"</span>, </span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_4"</span>,</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_5"</span>, </span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_6"</span>, </span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_7"</span>, </span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_8"</span>,</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_9"</span>, </span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_10"</span>, </span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_11"</span>, </span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>             <span class="st">"caff_intox_revised_12"</span>)</span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit1<span class="fl">.1</span>, <span class="fu">c</span>(<span class="st">"cfi.robust"</span>, <span class="st">"tli.robust"</span>, <span class="st">"rmsea.robust"</span>, <span class="st">"srmr"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  cfi.robust   tli.robust rmsea.robust         srmr 
+       0.873        0.839        0.134        0.058 </code></pre>
+</div>
+</div>
+</section>
 </section>
 
 </main>
