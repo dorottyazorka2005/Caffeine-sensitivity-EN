@@ -15,7 +15,9 @@ library(tidyverse)
 library(here)
 library(lavaan)
 library(semTools)
+library(rsample)
 ```
+
 
 ## Loading clean dataset
 
@@ -73,13 +75,13 @@ fit <- cfa(model,
 
 #### The widely accepted cut-off points for these model fit indices are the following:
 
--   CFI (Comparative Fit index): 0.95 \<= excellent fit, 0.90 \<= acceptable fit
+- CFI (Comparative Fit index): 0.95 \<= excellent fit, 0.90 \<= acceptable fit
 
--   TLI (Tucker-Lewis Index): 0.95 \<= excellent fit, 0.90 \<= acceptable fit
+- TLI (Tucker-Lewis Index): 0.95 \<= excellent fit, 0.90 \<= acceptable fit
 
--   RMSEA (Root Mean Square Error of Approximation) : 0.06 \>= excellent fit, 0.08 \>= good fit
+- RMSEA (Root Mean Square Error of Approximation) : 0.06 \>= excellent fit, 0.08 \>= good fit
 
--   SRMR (Standardized Root Mean Square Residual): 0.05 \>= excellent fit, 0.08 \>= good fit
+- SRMR (Standardized Root Mean Square Residual): 0.05 \>= excellent fit, 0.08 \>= good fit
 
 ```{r}
 fitMeasures(fit, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
@@ -87,11 +89,11 @@ fitMeasures(fit, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
 
 ## Results:
 
--   CFI and TLI indicates a poor model fit as their values are below 0.90
+- CFI and TLI indicates a poor model fit as their values are below 0.90
 
--   RMSEA is above the recommended threshold, therefore indicating a poor model fit.
+- RMSEA is above the recommended threshold, therefore indicating a poor model fit.
 
--   SRMR is below the 0.08 threshold, indicating a good model fit.
+- SRMR is below the 0.08 threshold, indicating a good model fit.
 
 # Factor loadings in the single factor CFA model
 
@@ -103,7 +105,7 @@ standardizedsolution(fit)
 
 ### Results:
 
--   Most of the factor loadings are above 0.70, expect for three items. Item 4 (Difficulty falling asleep), item 7 (Frequent or strong urge to urinate) and item 8 (Stomach discomfort or bowel urgency) show lower factor loadings, which may indicate that these items fit the single factor model less.
+- Most of the factor loadings are above 0.70, expect for three items. Item 4 (Difficulty falling asleep), item 7 (Frequent or strong urge to urinate) and item 8 (Stomach discomfort or bowel urgency) show lower factor loadings, which may indicate that these items fit the single factor model less.
 
 # Scale reliability with McDonald's Omega
 
@@ -240,3 +242,17 @@ fit1.1 <- cfa(model1.1,
 fitMeasures(fit1.1, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
 
 ```
+
+# Partition data
+```{r}
+set.seed(2026)
+
+caff_split <- initial_split(data_clean, prop = 0.6)
+
+caff_train <- training(caff_split)
+caff_test <- testing(caff_split)
+
+
+```
+
+

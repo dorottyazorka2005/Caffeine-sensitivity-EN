@@ -1,19 +1,16 @@
 library(tidyverse)
+library(qualtRics)
 
-#Reading the csv file
-data <- read_csv("data/raw/caffeine_sensitivity_english_raw.csv")
+caff_raw <- read_survey("data/raw/caffeine_sensitivity_english_raw.csv")
 
-#Get a summary of the data 
-glimpse(data)
+caff <- 
+  caff_raw |> 
+  select(PROLIFIC_PID,
+         age, gender, occupation, caff_sens, caffeine_perday,
+         starts_with("caff_intox")
+         ) |> 
+  mutate(across(starts_with("caff_intox"), parse_number),
+         across(c("gender", "occupation", "caff_sens"), ~str_remove(.x, "^\\d.") |> str_squish())
+         )
 
-#Cleaning the data; changing variables into numeric ones and removing the first two rows
-data_clean <- data %>%
-  slice(-(1:2)) %>%
-  filter(!if_all(starts_with("caff_intox"), is.na)) %>%
-  mutate(across(
-    .cols = c(gender, occupation, caff_sens, starts_with("caff_intox")),
-    .fns = parse_number
-  ))
-
-#Saving the cleaned data set
-write_csv(data_clean, "data/clean/caffeine_sensitivity_english_clean.csv")
+write_excel_csv(caff, "data/clean/caffeine_sensitivity_english_clean.csv")
