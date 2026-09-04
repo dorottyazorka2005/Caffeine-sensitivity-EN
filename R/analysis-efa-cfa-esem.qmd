@@ -1,0 +1,132 @@
+---
+title: "Analysis - EFA, CFA, ESEM"
+format: html
+editor: visual
+---
+
+---
+title: "EFA"
+format: html
+editor: visual
+---
+
+## Partitioning into two datasets
+
+Conducting exploratory factor analysis (EFA) and exploratory structural equation modeling (ESEM) on the first half of the dataset, then conducting confirmatory factor analysis (CFA) on the second half of the dataset
+
+```{r}
+library(tidyverse)
+
+data_clean <- read_csv("../data/clean/caffeine_sensitivity_english_clean.csv")
+
+efa_data <- data_clean %>%
+  slice(1:floor(n()/2))
+
+cfa_data <- data_clean %>%
+  slice((floor(n()/2) + 1):n())
+
+nrow(efa_data)
+nrow(cfa_data)
+```
+
+## Checking the prerequisities for EFA analysis
+
+### Distribution of each item
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+efa_distribution <- efa_data %>%
+  select(caff_intox_revised_1:caff_intox_revised_12)
+
+# Changing to long-format
+efa_long <- efa_distribution %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Value")
+
+ggplot(efa_long, aes(x = Value)) +
+  geom_bar(fill = "#595959", color = "#404040", alpha = 0.9) +
+  facet_wrap(~Variable, ncol = 4) +
+  theme_grey() + 
+  labs(
+    title = "Distribution summary",
+    x = "Value",
+    y = "Frequency"
+  ) +
+  theme(
+    strip.background = element_blank(), 
+    strip.text = element_text(face = "bold", hjust = 0), 
+    panel.grid.major = element_line(color = "white"),
+    panel.grid.minor = element_line(color = "white")
+  )
+```
+
+The plots show a right-skewed distribution. Items 11, 12 and 5 show a floor effect particularly.
+
+### KMO and Bartlett tests
+
+```{r}
+library(psych)
+library(MVN)
+
+efa_items <- efa_data %>%
+  select(caff_intox_revised_1:caff_intox_revised_12)
+
+KMO(efa_items)
+cortest.bartlett(
+  cor(efa_items, use = "pairwise.complete.obs"),
+  n = nrow(efa_items)
+)
+```
+
+The results of KMO suggest that the dataset is adequate for EFA. Bartlett's test also suggests that the correlation matrix significantly differs from the identity matrix.
+
+## Scree plot and eigenvalue
+
+```{r}
+poly_cor <- psych::polychoric(efa_items)$rho
+eigenvalues <- eigen(poly_cor)$values
+eigenvalues
+
+fa.parallel(
+  efa_items,
+  fa = "fa",
+  cor = "poly"
+)
+```
+
+Based on the scree plot and eigenvalue, it suggests a two-factor model.
+
+## Factor loadings in a two factor model
+
+```{r}
+poly_cor <- polychoric(efa_items)$rho
+
+efa2 <- fa(
+  poly_cor,
+  nfactors = 2,
+  rotate = "oblimin",
+  fm = "minres",
+  n.obs = nrow(efa_items)
+)
+
+print(efa$loadings, sort = TRUE)
+```
+
+Based on the factor loadings table, items 3, 6, 9, 10 show cross-loading that suggests that a simple two-factor model does not show a clear structure.
+
+## Factor loadings in one factor model
+
+```{r}
+efa1 <- fa(
+  poly_cor,
+  nfactors = 1,
+  rotate = "none",
+  fm = "minres",
+  n.obs = nrow(efa_items)
+)
+
+print(efa1$loadings, sort = TRUE)
+```
+
+The factor loadings for all items are adequate.
