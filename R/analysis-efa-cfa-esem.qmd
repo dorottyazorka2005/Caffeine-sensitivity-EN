@@ -130,3 +130,132 @@ print(efa1$loadings, sort = TRUE)
 ```
 
 The factor loadings for all items are adequate.
+
+## ESEM models
+
+### One-factor ESEM
+
+```{r}
+library(lavaan)
+
+model_1ESEM <- '
+  efa("efa1")*factor1 =~
+    caff_intox_revised_1 +
+    caff_intox_revised_2 +
+    caff_intox_revised_3 +
+    caff_intox_revised_4 +
+    caff_intox_revised_5 +
+    caff_intox_revised_6 +
+    caff_intox_revised_7 +
+    caff_intox_revised_8 +
+    caff_intox_revised_9 +
+    caff_intox_revised_10 +
+    caff_intox_revised_11 +
+    caff_intox_revised_12
+'
+
+fit_1ESEM <- cfa(
+  model_1ESEM,
+  data = efa_items,
+  estimator = "WLSMV",
+  ordered = names(efa_items),
+  rotation = "geomin"
+)
+
+fitMeasures(
+  fit_1ESEM,
+  c("cfi.robust", "tli.robust", "rmsea.robust", "srmr")
+)
+
+standardizedSolution(fit_1ESEM)
+
+```
+
+### First-order ESEM
+```{r}
+
+model_2ESEM <- '
+  efa("efa1")*F1 +
+  efa("efa1")*F2 =~
+    caff_intox_revised_1 +
+    caff_intox_revised_2 +
+    caff_intox_revised_3 +
+    caff_intox_revised_4 +
+    caff_intox_revised_5 +
+    caff_intox_revised_6 +
+    caff_intox_revised_7 +
+    caff_intox_revised_8 +
+    caff_intox_revised_9 +
+    caff_intox_revised_10 +
+    caff_intox_revised_11 +
+    caff_intox_revised_12
+'
+
+fit_2ESEM <- cfa(
+  model_2ESEM,
+  data = efa_items,
+  estimator = "WLSMV",
+  ordered = names(efa_items),
+  rotation = "geomin"
+)
+
+fitMeasures(
+  fit_2ESEM,
+  c("cfi.robust", "tli.robust", "rmsea.robust", "srmr")
+)
+
+standardizedSolution(fit_2ESEM)
+
+```
+### Bifactor ESEM
+```{r}
+
+model_3ESEM <- '
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  efa("S1", "S2") =~
+       caff_intox_revised_1 +
+       caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  G ~~ 0*S1
+  G ~~ 0*S2
+
+  S1 ~~ 0*S2
+  '
+  
+fit_3ESEM <- cfa(
+  model_3ESEM,
+  data = efa_items,
+  ordered = names(efa_items),
+  estimator = "WLSMV",
+  rotation = "geomin"
+)
+
+fitMeasures(
+  fit_3ESEM,
+  c("cfi.robust", "tli.robust", "rmsea.robust", "srmr")
+)
+
+standardizedSolution(fit_3ESEM)
+```
