@@ -209,7 +209,6 @@ standardizedSolution(fit_2ESEM)
 ```
 ### Bifactor ESEM
 ```{r}
-
 model_3ESEM <- '
   G =~ caff_intox_revised_1 +
        caff_intox_revised_2 +
@@ -224,7 +223,8 @@ model_3ESEM <- '
        caff_intox_revised_11 +
        caff_intox_revised_12
 
-  efa("S1", "S2") =~
+  efa("S")*S1 +
+  efa("S")*S2 =~
        caff_intox_revised_1 +
        caff_intox_revised_2 +
        caff_intox_revised_3 +
@@ -242,14 +242,13 @@ model_3ESEM <- '
   G ~~ 0*S2
 
   S1 ~~ 0*S2
-  '
+'
   
 fit_3ESEM <- cfa(
   model_3ESEM,
   data = efa_items,
   ordered = names(efa_items),
-  estimator = "WLSMV",
-  rotation = "geomin"
+  estimator = "WLSMV"
 )
 
 fitMeasures(
@@ -258,4 +257,85 @@ fitMeasures(
 )
 
 standardizedSolution(fit_3ESEM)
+```
+## CFA
+### One-factor CFA
+```{r}
+library(lavaan)
+library(semTools)
+
+model_one_factor <- 'factor1 =~ 
+caff_intox_revised_1 + 
+caff_intox_revised_2 + 
+caff_intox_revised_3 +
+caff_intox_revised_4 + 
+caff_intox_revised_5 + 
+caff_intox_revised_6 + 
+caff_intox_revised_7 +
+caff_intox_revised_8 + 
+caff_intox_revised_9 + 
+caff_intox_revised_10 +
+caff_intox_revised_11 + 
+caff_intox_revised_12'
+
+fit_one_factor <- cfa(model_one_factor,
+  data= cfa_data,
+  estimator= "WLSMV",
+  ordered= c("caff_intox_revised_1", 
+             "caff_intox_revised_2", 
+             "caff_intox_revised_3", 
+             "caff_intox_revised_4",
+             "caff_intox_revised_5", 
+             "caff_intox_revised_6", 
+             "caff_intox_revised_7", 
+             "caff_intox_revised_8",
+             "caff_intox_revised_9", 
+             "caff_intox_revised_10", 
+             "caff_intox_revised_11", 
+             "caff_intox_revised_12")
+  )
+
+fitMeasures(fit_one_factor, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
+reliability(fit_one_factor)
+```
+### First-order CFA
+```{r}
+model_first_order <- '
+  F1 =~
+    caff_intox_revised_1 +
+    caff_intox_revised_2 +
+    caff_intox_revised_3 +
+    caff_intox_revised_4
+
+  F2 =~
+    caff_intox_revised_5 +
+    caff_intox_revised_6 +
+    caff_intox_revised_7 +
+    caff_intox_revised_8 +
+    caff_intox_revised_9 +
+    caff_intox_revised_10 +
+    caff_intox_revised_11 +
+    caff_intox_revised_12
+'
+
+fit_first_order <- cfa(
+  model_first_order,
+  data = cfa_data,
+  estimator = "WLSMV",
+  ordered = c("caff_intox_revised_1", 
+             "caff_intox_revised_2", 
+             "caff_intox_revised_3", 
+             "caff_intox_revised_4",
+             "caff_intox_revised_5", 
+             "caff_intox_revised_6", 
+             "caff_intox_revised_7", 
+             "caff_intox_revised_8",
+             "caff_intox_revised_9", 
+             "caff_intox_revised_10", 
+             "caff_intox_revised_11", 
+             "caff_intox_revised_12")
+)
+
+fitMeasures(fit_first_order, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr"))
+reliability(fit_first_order)
 ```
