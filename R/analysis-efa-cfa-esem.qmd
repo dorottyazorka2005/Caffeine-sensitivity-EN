@@ -33,11 +33,13 @@ set.seed(123)
 data_clean <- data_clean %>%
   slice_sample(prop = 1)
 
+n_efa <- floor(nrow(data_clean) * 0.6)
+
 efa_data <- data_clean %>%
-  slice(1:floor(n()/2))
+  slice(1:n_efa)
 
 cfa_data <- data_clean %>%
-  slice((floor(n()/2) + 1):n())
+  slice((n_efa + 1):n())
 
 nrow(efa_data)
 nrow(cfa_data)
@@ -87,9 +89,12 @@ library(MVN)
 efa_items <- efa_data %>%
   select(caff_intox_revised_1:caff_intox_revised_12)
 
-KMO(efa_items)
+poly_cor <- psych::polychoric(efa_items)$rho
+
+KMO(poly_cor)
+
 cortest.bartlett(
-  cor(efa_items, use = "pairwise.complete.obs"),
+  poly_cor,
   n = nrow(efa_items)
 )
 ```
@@ -509,4 +514,155 @@ summary(
   standardized = TRUE
 )
 
+```
+## CFA - Bifactor model - removing item 1
+```{r}
+bi_model_without_1 <- '
+
+  G =~ caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_2 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_10
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_11 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bi_without_1 <- cfa(
+  bi_model_without_1,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bi_without_1,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+
+```
+
+## CFA - Bifactor model - removing item 2
+```{r}
+bi_model_without_2 <- '
+
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_1 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_10
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_11 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bi_without_2 <- cfa(
+  bi_model_without_2,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bi_without_2,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+
+```
+
+## CFA - Bifactor model - removing item 6
+```{r}
+bi_model_without_6 <- '
+
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_1 +
+        caff_intox_revised_2 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_10
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_11 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bi_without_6 <- cfa(
+  bi_model_without_6,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bi_without_6,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
 ```
