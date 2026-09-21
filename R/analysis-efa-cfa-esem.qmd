@@ -20,7 +20,13 @@ library(tidyverse)
 data_clean <- read_csv("../data/clean/caffeine_sensitivity_english_clean.csv")
 
 data_clean <- data_clean %>%
-  filter(if_all(caff_intox_revised_1:caff_intox_revised_12, ~ !is.na(.)))
+    filter(if_all(caff_intox_revised_1:caff_intox_revised_12, ~ !is.na(.))) %>%
+  mutate(
+    across(
+      caff_intox_revised_1:caff_intox_revised_12,
+      ~ ordered(.x, levels = 1:5)
+    )
+  )
 
 set.seed(123)
 
@@ -449,5 +455,58 @@ summary(
   standardized = TRUE
 )
 
+
+```
+
+## CFA - Bifactor modell
+```{r}
+bifactor_model <- '
+
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_1 +
+        caff_intox_revised_2 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_10
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_11 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bifactor <- cfa(
+  bifactor_model,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bifactor,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
 
 ```
