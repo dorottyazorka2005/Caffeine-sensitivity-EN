@@ -514,6 +514,8 @@ summary(
   standardized = TRUE
 )
 
+reliability(fit_bifactor)
+
 ```
 ## CFA - Bifactor model - removing item 1
 ```{r}
@@ -563,6 +565,8 @@ summary(
   fit.measures = TRUE,
   standardized = TRUE
 )
+
+reliability(fit_bi_without_1)
 
 ```
 
@@ -615,6 +619,7 @@ summary(
   standardized = TRUE
 )
 
+reliability(fit_bi_without_2)
 ```
 
 ## CFA - Bifactor model - removing item 6
@@ -665,4 +670,173 @@ summary(
   fit.measures = TRUE,
   standardized = TRUE
 )
+
+reliability(fit_bi_without_6)
+```
+## Bifactor CFA with all items and modification indices
+```{r}
+mi_bifactor <- modindices(fit_bifactor)
+
+mi_bifactor %>%
+  arrange(desc(mi)) %>%
+  select(lhs, op, rhs, mi, epc) %>%
+  head(9)
+```
+## Allowing item 6 to load on both factors
+```{r}
+bifactor_model_1 <- '
+
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_1 +
+        caff_intox_revised_2 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_6 +
+        caff_intox_revised_10
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_11 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bifactor_1 <- cfa(
+  bifactor_model_1,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bifactor_1,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+
+reliability(fit_bifactor_1)
+```
+## Item 6 loading for both factors and removing item 1
+```{r}
+bifactor_model_1.1 <- '
+
+  G =~ caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_2 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_6 +
+        caff_intox_revised_10
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_11 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bifactor_1.1 <- cfa(
+  bifactor_model_1.1,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bifactor_1.1,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+
+reliability(fit_bifactor_1.1)
+```
+## Item 6 loading on both factors and removing item 2
+```{r}
+bifactor_model_1.2 <- '
+
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_11 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_1 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_6 +
+        caff_intox_revised_10
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_11 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bifactor_1.2 <- cfa(
+  bifactor_model_1.2,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bifactor_1.2,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+
+reliability(fit_bifactor_1.2)
 ```
