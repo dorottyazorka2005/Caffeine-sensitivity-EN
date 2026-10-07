@@ -840,3 +840,55 @@ summary(
 
 reliability(fit_bifactor_1.2)
 ```
+```{r}
+bifactor_model_1 <- '
+
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_1 +
+        caff_intox_revised_2 +
+        caff_intox_revised_3 +
+        caff_intox_revised_4 +
+        caff_intox_revised_6 
+        
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_10 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bifactor_1 <- cfa(
+  bifactor_model_1,
+  data = data_clean,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bifactor_1,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+
+reliability(fit_bifactor_1)
+```
