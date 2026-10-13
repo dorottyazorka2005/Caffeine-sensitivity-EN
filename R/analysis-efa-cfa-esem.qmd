@@ -24,14 +24,16 @@ library(lavaan)
 library(lavaan)
 library(semTools)
 
+
 data_clean <- read_csv("../data/clean/caffeine_sensitivity_english_clean.csv")
 
 data_clean <- data_clean %>%
-    filter(if_all(caff_intox_revised_1:caff_intox_revised_12, ~ !is.na(.))) %>%
+  filter(if_all(caff_intox_revised_1:caff_intox_revised_12, ~ !is.na(.))) %>%
+  select(caff_intox_revised_1:caff_intox_revised_12) %>%
   mutate(
     across(
       caff_intox_revised_1:caff_intox_revised_12,
-      ~ ordered(.x, levels = 1:5)
+      ~ factor (.)
     )
   )
 
@@ -887,7 +889,7 @@ summary(
 
 reliability(fit_bifactor_1)
 ```
-## Final bifactor modell
+## Final bifactor modell - item 2 and 3 only loading on general factor, removing item 11 and item 6 has cross-loadings
 ```{r}
 bifactor_model_final <- '
 
@@ -937,4 +939,8 @@ summary(
 )
 
 reliability(fit_bifactor_final)
+semTools::compRelSEM(
+  fit_bifactor_final,
+  ord.scale = FALSE
+)
 ```
