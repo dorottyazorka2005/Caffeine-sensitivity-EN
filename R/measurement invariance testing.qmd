@@ -3,4 +3,130 @@ title: "measurement invariance testing"
 format: html
 editor: visual
 ---
+#Loading libraries
+```{r}
+library(tidyverse)
+library(lavaan)
+library(semTools)
 
+```
+
+#Importing datasets and joining them
+```{r}
+english <- read.csv("../data/clean/caffeine_sensitivity_english_clean.csv") %>%
+  filter(caff_intox_revised_13 == 4) %>%
+  mutate(sample = "English") %>%
+  select(sample, age, gender, caff_sens, caffeine_perday, caff_intox_revised_1:caff_intox_revised_12)
+
+hungarian <- read.csv("../data/clean/caffeine_sensitivity_hungarian_clean.csv") %>%
+  filter(if_all(
+      all_of(paste0("caff_intox_revised_", 1:12)),
+      ~ !is.na(.x))) %>%
+  mutate(caff_sens = factor(caff_sens, levels = c(0, 1), labels = c("No", "Yes"))) %>%
+  mutate(sample = "Hungarian") %>%
+  select(sample, age, gender, caff_sens, caffeine_perday, caff_intox_revised_1:caff_intox_revised_12)
+
+caff_sens_invariance <- bind_rows(english, hungarian)
+```
+
+#Model specification
+```{r}
+bifactor_model_caff_sens <- '
+
+  G =~ caff_intox_revised_1 +
+       caff_intox_revised_2 +
+       caff_intox_revised_3 +
+       caff_intox_revised_4 +
+       caff_intox_revised_5 +
+       caff_intox_revised_6 +
+       caff_intox_revised_7 +
+       caff_intox_revised_8 +
+       caff_intox_revised_9 +
+       caff_intox_revised_10 +
+       caff_intox_revised_12
+
+  F1 =~ caff_intox_revised_1 +
+        caff_intox_revised_4 +
+        caff_intox_revised_6 
+        
+
+  F2 =~ caff_intox_revised_5 +
+        caff_intox_revised_6 +
+        caff_intox_revised_7 +
+        caff_intox_revised_8 +
+        caff_intox_revised_9 +
+        caff_intox_revised_10 +
+        caff_intox_revised_12
+
+  G ~~ 0*F1
+  G ~~ 0*F2
+  F1 ~~ 0*F2
+'
+
+fit_bifactor_caff_sens <- cfa(
+  bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  estimator = "WLSMV",
+  ordered = TRUE,
+  std.lv = TRUE
+  )
+
+
+summary(
+  fit_bifactor_caff_sens,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+
+
+```
+
+#Configural invariance
+```{r}
+ordinal_items <- paste0(
+  "caff_intox_revised_",
+  c(1:10, 12)
+)
+
+configural_caff_sens <- 
+  cfa(bifactor_model_caff_sens, 
+      data = caff_sens_invariance, 
+      estimator = "WLSMV",
+      ordered = ordinal_items,
+      group = "sample")
+
+summary(configural_caff_sens, fit.measures = TRUE, standardized = TRUE)
+```
+#Metric invaiance
+```{r}
+metric_caff_sens <- cfa(bifactor_model_caff_sens,
+                        data = caff_sens_invariance,
+                        estimator = "WLSMV",
+                        group = "sample",
+                        ordered = ordinal_items,
+                        group.equal= "loadings")
+
+invariance_comparison <- compareFit(configural_caff_sens, metric_caff_sens)
+
+lavaan::fitMeasures(configural_caff_sens)
+
+lavaan::fitMeasures(metric_caff_sens)
+
+configural_fit <- lavaan::fitMeasures(
+  configural_caff_sens,
+  c("cfi.robust", "tli.robust", "rmsea.robust",
+    "cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
+)
+
+metric_fit <- lavaan::fitMeasures(
+  metric_caff_sens,
+  c("cfi.robust", "tli.robust", "rmsea.robust",
+    "cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
+)
+
+rbind(
+  Configural = configural_fit,
+  Metric = metric_fit,
+  Difference = metric_fit - configural_fit
+)
+```
