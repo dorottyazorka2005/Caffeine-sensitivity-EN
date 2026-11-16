@@ -944,3 +944,22 @@ semTools::compRelSEM(
   ord.scale = FALSE
 )
 ```
+## Measurement invariance testing
+```{r}
+#Importing datasets and joining them
+english <- read.csv("../data/clean/caffeine_sensitivity_english_clean.csv") %>%
+  filter(caff_intox_revised_13 == 4) %>%
+  mutate(sample = "English") %>%
+  select(sample, age, gender, caff_sens, caffeine_perday, caff_intox_revised_1:caff_intox_revised_12)
+
+hungarian <- read.csv("../data/clean/caffeine_sensitivity_hungarian_clean.csv") %>%
+  filter(if_all(
+      all_of(paste0("caff_intox_revised_", 1:12)),
+      ~ !is.na(.x))) %>%
+  mutate(caff_sens = factor(caff_sens, levels = c(0, 1), labels = c("No", "Yes"))) %>%
+  mutate(sample = "Hungarian") %>%
+  select(sample, age, gender, caff_sens, caffeine_perday, caff_intox_revised_1:caff_intox_revised_12)
+
+caff_sens_invariance <- bind_rows(english, hungarian)
+```
+
