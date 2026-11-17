@@ -96,6 +96,7 @@ fit_configural <- measEq.syntax(
   ordered = ordinal_items,
   group = "sample",
   estimator = "WLSMV",
+  parameterization = "theta",
   ID.fac = "std.lv",
   ID.cat = "Wu.Estabrook.2016",
   return.fit = TRUE
@@ -112,6 +113,7 @@ fit_thresholds <- measEq.syntax(
   ordered = ordinal_items,
   group = "sample",
   estimator = "WLSMV",
+  parameterization = "theta",
   ID.fac = "std.lv",
   ID.cat = "Wu.Estabrook.2016",
   group.equal = c("thresholds"),
@@ -128,6 +130,7 @@ fit_metric <- measEq.syntax(
   ordered = ordinal_items,
   group = "sample",
   estimator = "WLSMV",
+  parameterization = "theta",
   ID.fac = "std.lv",
   ID.cat = "Wu.Estabrook.2016",
   group.equal = c("thresholds", "loadings"),
@@ -136,22 +139,7 @@ fit_metric <- measEq.syntax(
 ```
 
 #Scalar invariance
-```{r}
-fit_scalar <- measEq.syntax(
-  configural.model = bifactor_model_caff_sens,
-  data = caff_sens_invariance,
-  ordered = ordinal_items,
-  group = "sample",
-  estimator = "WLSMV",
-  ID.fac = "std.lv",
-  ID.cat = "Wu.Estabrook.2016",
-  group.equal = c("thresholds", "loadings", "intercepts"),
-  return.fit = TRUE
-)
-
-```
-
-#Fixing the scalar syntax (freeing the latent means)
+##Fixing the scalar syntax (freeing the latent means)
 ```{r}
 #Generating scalar syntax
 scalar_syntax <- measEq.syntax(
@@ -160,6 +148,7 @@ scalar_syntax <- measEq.syntax(
   ordered = ordinal_items,
   group = "sample",
   estimator = "WLSMV",
+  parameterization = "theta",
   ID.fac = "std.lv",
   ID.cat = "Wu.Estabrook.2016",
   group.equal = c("thresholds", "loadings", "intercepts")
@@ -180,27 +169,14 @@ fit_scalar <- cfa(
   data = caff_sens_invariance,
   ordered = ordinal_items,
   group = "sample",
-  estimator = "WLSMV"
+  estimator = "WLSMV",
+  parameterization = "theta"
 )
 
 ```
 
 #Strict invariance
-```{r}
-fit_strict <- measEq.syntax(
-  configural.model = bifactor_model_caff_sens,
-  data = caff_sens_invariance,
-  ordered = ordinal_items,
-  group = "sample",
-  estimator = "WLSMV",
-  ID.fac = "std.lv",
-  ID.cat = "Wu.Estabrook.2016",
-  group.equal = c("thresholds", "loadings", "intercepts", "residuals"),
-  return.fit = TRUE
-)
-```
-
-#Setting parameterization "theta" in strict invariance
+##Setting parameterization "theta" in strict invariance
 ```{r}
 # Applying parameterization to all 5 models when testing strict invariance
 strict_syntax <- measEq.syntax(
