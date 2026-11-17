@@ -97,7 +97,7 @@ configural_caff_sens <-
 
 summary(configural_caff_sens, fit.measures = TRUE, standardized = TRUE)
 ```
-#Metric invaiance
+#Metric invariance
 ```{r}
 metric_caff_sens <- cfa(bifactor_model_caff_sens,
                         data = caff_sens_invariance,
@@ -122,6 +122,66 @@ metric_fit <- lavaan::fitMeasures(
   metric_caff_sens,
   c("cfi.robust", "tli.robust", "rmsea.robust",
     "cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
+)
+
+rbind(
+  Configural = configural_fit,
+  Metric = metric_fit,
+  Difference = metric_fit - configural_fit
+)
+```
+
+#Scalar invariance
+##Generating the syntax first, then fitting it 
+```{r}
+threshold_syntax <- measEq.syntax(
+      configural.model = bifactor_model_caff_sens,
+      data = caff_sens_invariance,
+      ordered = ordinal_items,
+      group = "sample",
+      estimator = "WLSMV",
+      ID.fac = "std.lv",
+      ID.cat = "Wu.Estabrook.2016",
+    group.equal = "thresholds"
+    )
+
+threshold_caff_sens <- cfa(
+      as.character(threshold_syntax),
+      data = caff_sens_invariance,
+      estimator = "WLSMV",
+      group = "sample",
+      ordered = ordinal_items
+      )
+
+
+
+invariance_comparison <- compareFit(
+  threshold_caff_sens,
+  metric_ordinal_caff_sens
+)
+
+summary(invariance_comparison)
+
+rbind(
+  Threshold = fitMeasures(
+    threshold_caff_sens,
+    c("cfi.robust", "tli.robust", "rmsea.robust", "srmr")
+  ),
+  Metric = fitMeasures(
+    metric_ordinal_caff_sens,
+    c("cfi.robust", "tli.robust", "rmsea.robust", "srmr")
+  )
+)
+
+rbind(
+  Threshold = fitMeasures(
+    threshold_caff_sens,
+    c("cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
+  ),
+  Metric = fitMeasures(
+    metric_ordinal_caff_sens,
+    c("cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
+  )
 )
 
 rbind(
