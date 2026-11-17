@@ -2,6 +2,8 @@
 title: "measurement invariance testing"
 format: html
 editor: visual
+editor_options: 
+  chunk_output_type: console
 ---
 #Loading libraries
 ```{r}
@@ -88,105 +90,188 @@ ordinal_items <- paste0(
   c(1:10, 12)
 )
 
-configural_caff_sens <- 
-  cfa(bifactor_model_caff_sens, 
-      data = caff_sens_invariance, 
-      estimator = "WLSMV",
-      ordered = ordinal_items,
-      group = "sample")
+fit_configural <- measEq.syntax(
+  configural.model = bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  ID.fac = "std.lv",
+  ID.cat = "Wu.Estabrook.2016",
+  return.fit = TRUE
+)
 
-summary(configural_caff_sens, fit.measures = TRUE, standardized = TRUE)
+summary(fit_configural,fit.measures = TRUE, standardized = TRUE)
 ```
+
+#Threshold invariance
+```{r}
+fit_thresholds <- measEq.syntax(
+  configural.model = bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  ID.fac = "std.lv",
+  ID.cat = "Wu.Estabrook.2016",
+  group.equal = c("thresholds"),
+  return.fit = TRUE
+)
+
+```
+
 #Metric invariance
 ```{r}
-metric_caff_sens <- cfa(bifactor_model_caff_sens,
-                        data = caff_sens_invariance,
-                        estimator = "WLSMV",
-                        group = "sample",
-                        ordered = ordinal_items,
-                        group.equal= "loadings")
-
-invariance_comparison <- compareFit(configural_caff_sens, metric_caff_sens)
-
-lavaan::fitMeasures(configural_caff_sens)
-
-lavaan::fitMeasures(metric_caff_sens)
-
-configural_fit <- lavaan::fitMeasures(
-  configural_caff_sens,
-  c("cfi.robust", "tli.robust", "rmsea.robust",
-    "cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
-)
-
-metric_fit <- lavaan::fitMeasures(
-  metric_caff_sens,
-  c("cfi.robust", "tli.robust", "rmsea.robust",
-    "cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
-)
-
-rbind(
-  Configural = configural_fit,
-  Metric = metric_fit,
-  Difference = metric_fit - configural_fit
+fit_metric <- measEq.syntax(
+  configural.model = bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  ID.fac = "std.lv",
+  ID.cat = "Wu.Estabrook.2016",
+  group.equal = c("thresholds", "loadings"),
+  return.fit = TRUE
 )
 ```
 
 #Scalar invariance
-##Generating the syntax first, then fitting it 
 ```{r}
-threshold_syntax <- measEq.syntax(
-      configural.model = bifactor_model_caff_sens,
-      data = caff_sens_invariance,
-      ordered = ordinal_items,
-      group = "sample",
-      estimator = "WLSMV",
-      ID.fac = "std.lv",
-      ID.cat = "Wu.Estabrook.2016",
-    group.equal = "thresholds"
-    )
-
-threshold_caff_sens <- cfa(
-      as.character(threshold_syntax),
-      data = caff_sens_invariance,
-      estimator = "WLSMV",
-      group = "sample",
-      ordered = ordinal_items
-      )
-
-
-
-invariance_comparison <- compareFit(
-  threshold_caff_sens,
-  metric_ordinal_caff_sens
+fit_scalar <- measEq.syntax(
+  configural.model = bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  ID.fac = "std.lv",
+  ID.cat = "Wu.Estabrook.2016",
+  group.equal = c("thresholds", "loadings", "intercepts"),
+  return.fit = TRUE
 )
 
-summary(invariance_comparison)
+```
 
-rbind(
-  Threshold = fitMeasures(
-    threshold_caff_sens,
-    c("cfi.robust", "tli.robust", "rmsea.robust", "srmr")
-  ),
-  Metric = fitMeasures(
-    metric_ordinal_caff_sens,
-    c("cfi.robust", "tli.robust", "rmsea.robust", "srmr")
+#Fixing the scalar syntax (freeing the latent means)
+```{r}
+#Generating scalar syntax
+scalar_syntax <- measEq.syntax(
+  configural.model = bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  ID.fac = "std.lv",
+  ID.cat = "Wu.Estabrook.2016",
+  group.equal = c("thresholds", "loadings", "intercepts")
+)
+
+
+syntax_str <- as.character(scalar_syntax)
+cat(syntax_str)
+
+# Freeing latent means in group 2
+syntax_scalar_free_means <- syntax_str %>%
+  str_replace("G ~ c\\(0, 0\\)\\*1", "G ~ c(0, NA)*1") %>%
+  str_replace("F1 ~ c\\(0, 0\\)\\*1", "F1 ~ c(0, NA)*1") %>%
+  str_replace("F2 ~ c\\(0, 0\\)\\*1", "F2 ~ c(0, NA)*1")
+
+fit_scalar <- cfa(
+  syntax_scalar_free_means,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV"
+)
+
+```
+
+#Strict invariance
+```{r}
+fit_strict <- measEq.syntax(
+  configural.model = bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  ID.fac = "std.lv",
+  ID.cat = "Wu.Estabrook.2016",
+  group.equal = c("thresholds", "loadings", "intercepts", "residuals"),
+  return.fit = TRUE
+)
+```
+
+#Setting parameterization "theta" in strict invariance
+```{r}
+# Applying parameterization to all 5 models when testing strict invariance
+strict_syntax <- measEq.syntax(
+  configural.model = bifactor_model_caff_sens,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  parameterization = "theta",
+  ID.fac = "std.lv",
+  ID.cat = "Wu.Estabrook.2016",
+  group.equal = c("thresholds", "loadings", "intercepts", "residuals")
+)
+
+# Freeing the latent means 
+syntax_strict_free_means <- as.character(strict_syntax) %>%
+  str_replace("G ~ c\\(0, 0\\)\\*1", "G ~ c(0, NA)*1") %>%
+  str_replace("F1 ~ c\\(0, 0\\)\\*1", "F1 ~ c(0, NA)*1") %>%
+  str_replace("F2 ~ c\\(0, 0\\)\\*1", "F2 ~ c(0, NA)*1")
+
+fit_strict <- cfa(
+  syntax_strict_free_means,
+  data = caff_sens_invariance,
+  ordered = ordinal_items,
+  group = "sample",
+  estimator = "WLSMV",
+  parameterization = "theta"
+)
+```
+
+
+#Comparing each model 
+```{r}
+# Fit indices (CFI, TLI, RMSEA, SRMR, etc.)
+inv_summary@fit
+
+# Differences in fit indices between consecutive models
+inv_summary@fit.diff
+
+# Scaled chi-square difference tests (DIFFTEST)
+inv_summary@nested
+
+```
+
+#Comparison table
+```{r}
+models <- list(
+  Configural = fit_configural,
+  Thresholds = fit_thresholds,
+  Metric     = fit_metric,
+  Scalar     = fit_scalar,
+  Strict     = fit_strict
+)
+
+fit_table <- sapply(models, function(m) {
+  fitMeasures(m, c("chisq.scaled", "df.scaled", "pvalue.scaled", 
+                   "cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr"))
+}) %>%
+  t() %>%
+  as.data.frame() %>%
+  rownames_to_column("Model") %>%
+  mutate(
+    delta_cfi   = cfi.scaled - lag(cfi.scaled),
+    delta_rmsea = rmsea.scaled - lag(rmsea.scaled),
+    delta_srmr  = srmr - lag(srmr)
   )
-)
 
-rbind(
-  Threshold = fitMeasures(
-    threshold_caff_sens,
-    c("cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
-  ),
-  Metric = fitMeasures(
-    metric_ordinal_caff_sens,
-    c("cfi.scaled", "tli.scaled", "rmsea.scaled", "srmr")
-  )
-)
+print(fit_table, digits = 3)
 
-rbind(
-  Configural = configural_fit,
-  Metric = metric_fit,
-  Difference = metric_fit - configural_fit
-)
+# Scaled chi-square difference tests (DIFFTEST)
+lavTestLRT(fit_configural, fit_thresholds, fit_metric, fit_scalar, fit_strict)
+
+
 ```
