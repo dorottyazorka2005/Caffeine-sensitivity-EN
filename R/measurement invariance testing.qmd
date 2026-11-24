@@ -30,7 +30,13 @@ hungarian <- read.csv("../data/clean/caffeine_sensitivity_hungarian_clean.csv") 
 
 caff_sens_invariance <- bind_rows(english, hungarian)
 ```
+#Determining group order
+```{r}
+caff_sens_invariance$sample <- factor(
+  caff_sens_invariance$sample,
+  levels = c("Hungarian", "English"))
 
+```
 #Model specification
 ```{r}
 bifactor_model_caff_sens <- '
